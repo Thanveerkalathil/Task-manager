@@ -3,6 +3,8 @@ import AdminLogin from "./components/AdminLogin";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AdminPage from "./components/AdminPage";
 import { auth } from "./firebase-config";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -29,6 +31,7 @@ const App = () => {
           <Route path="/adminPanel" element={<AdminPage />} />
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
     </div>
   );
 };
