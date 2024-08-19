@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { auth, db } from "../firebase-config";
 import { collection, getDocs, query, where } from "firebase/firestore";
-
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -17,8 +16,8 @@ const AdminLogin = () => {
       const adminCollectionRef = collection(db, "admin");
       const q = query(adminCollectionRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
-      if(querySnapshot.empty){
-        throw new Error("This email does not have admin privileges.")
+      if (querySnapshot.empty) {
+        throw new Error("This email does not have admin privileges.");
       }
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Login successful!");
