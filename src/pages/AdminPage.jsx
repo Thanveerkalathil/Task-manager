@@ -1,10 +1,15 @@
-import "./admin.css"
-import React, { useEffect, useState } from "react";
+import "../assets/admin.css";
+import { useEffect, useState } from "react";
 import Header from "./Header";
 import { auth, db } from "../firebase-config";
-import { addDoc, collection, deleteDoc, doc, getDocs } from "firebase/firestore";
-import { createUserWithEmailAndPassword, deleteUser,} from "firebase/auth";
-
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+} from "firebase/firestore";
+import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 
 const AddUserPage = () => {
   const [users, setUsers] = useState([]);
@@ -17,7 +22,7 @@ const AddUserPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser({ ...newUser, [name]: value });
-    console.log(newUser)
+    console.log(newUser);
   };
 
   const userCollectionRef = collection(db, "users");
@@ -30,13 +35,13 @@ const AddUserPage = () => {
     getUsers();
   }, []);
 
-  const handleAddUser = async(e) => {
+  const handleAddUser = async (e) => {
     e.preventDefault();
     if (newUser.username && newUser.email) {
-      const {username,email,password}= newUser
-      await createUserWithEmailAndPassword(auth,email,password);
-      await addDoc(userCollectionRef,{id:Date.now(),username,email});
-      setUsers([...users, { id: Date.now(),...newUser }]);
+      const { username, email, password } = newUser;
+      await createUserWithEmailAndPassword(auth, email, password);
+      await addDoc(userCollectionRef, { id: Date.now(), username, email });
+      setUsers([...users, { id: Date.now(), ...newUser }]);
       setNewUser({ username: "", email: "", password: "defaultPassword" });
       setError("");
     } else {
@@ -44,16 +49,16 @@ const AddUserPage = () => {
     }
   };
 
-  const handleDeleteUser =async(id,email) => {
+  const handleDeleteUser = async (id, email) => {
     try {
-      const userDocRef =doc(db,"users",id)
-      const userAuth = await auth.getUserByEmail(email)
-      await deleteUser(userAuth)
-      await deleteDoc(userDocRef)
+      const userDocRef = doc(db, "users", id);
+      const userAuth = await auth.getUserByEmail(email);
+      await deleteUser(userAuth);
+      await deleteDoc(userDocRef);
       setUsers(users.filter((user) => user.id !== id));
-      console.log("User deleted successfully.")
+      console.log("User deleted successfully.");
     } catch (error) {
-      console.error("Error deleting user",error)
+      console.error("Error deleting user", error);
     }
   };
 
@@ -130,7 +135,7 @@ const AddUserPage = () => {
                   <p className="text-black font-mono">{user.email}</p>
                 </div>
                 <button
-                  onClick={() => handleDeleteUser(user.id,user.email)}
+                  onClick={() => handleDeleteUser(user.id, user.email)}
                   className="py-2 px-4 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition font-mono"
                 >
                   Delete
