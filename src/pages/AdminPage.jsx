@@ -1,6 +1,6 @@
 import "../assets/admin.css";
-import { useEffect, useState } from "react";
-import Header from "./Header";
+import { useEffect, useRef, useState } from "react";
+import Header from "../components/Header";
 import { auth, db } from "../firebase-config";
 import {
   addDoc,
@@ -15,26 +15,35 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+
 const emailAdmin = import.meta.env.VITE_EMAIL;
 const passwordAdmin = import.meta.env.VITE_PASSWORD;
+
 const AddUserPage = () => {
+  const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     username: "",
     email: "",
-    password: "defaultPassword",
+    password: "123456",
     role: "user",
   });
-  const [error, setError] = useState("");
+  const sidebarRef = useRef(null);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser({ ...newUser, [name]: value });
-    console.log(newUser);
   };
 
-  const userCollectionRef = collection(db, "users");
-
   useEffect(() => {
+    const userCollectionRef = collection(db, "users");
     const getUsers = async () => {
       const data = await getDocs(userCollectionRef);
       setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
@@ -42,122 +51,132 @@ const AddUserPage = () => {
     getUsers();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false);
+      }
+    };
+    if (isSidebarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSidebarOpen]);
+
   const handleAddUser = async (e) => {
     e.preventDefault();
+    const userCollectionRef = collection(db, "users");
     if (newUser.username && newUser.email) {
       const { username, email, password } = newUser;
       await createUserWithEmailAndPassword(auth, email, password);
-      await addDoc(userCollectionRef, { id: Date.now(), username, email });
-      setUsers([...users, { id: Date.now(), ...newUser }]);
-      await signOut(auth);
-      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
-      setNewUser({
-        username: "",
-        email: "",
-        password: "defaultPassword",
+      await addDoc(userCollectionRef, {
+        id: auth.currentUser.uid,
+        username,
+        email,
         role: "user",
       });
+      setUsers([...users, { id: auth.currentUser.uid, ...newUser }]);
+      await signOut(auth);
+      setNewUser({ username: "", email: "", password: "123456", role: "user" });
       setError("");
+      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
+      navigate("/admin");
     } else {
       setError("Username and Email are required.");
     }
   };
 
-  const handleDeleteUser = async (id, email) => {
-    try {
-      const userDocRef = doc(db, "users", id);
-      const userAuth = await auth.getUserByEmail(email);
-      await deleteUser(userAuth);
-      await deleteDoc(userDocRef);
-      setUsers(users.filter((user) => user.id !== id));
-      console.log("User deleted successfully.");
-    } catch (error) {
-      console.error("Error deleting user", error);
-    }
-  };
-
+ 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
-      <div className="flex flex-wrap justify-center items-start flex-1 bg-gray-200 px-4 md:px-16 py-8 gap-8 overflow-hidden">
-        {/* Add Button */}
-        <div className="w-full h-96 md:w-1/2 lg:w-1/3 bg-white p-6 rounded-lg shadow-lg border border-none">
-          <h2 className="text-3xl text-center font-bold text-black mb-6 font-mono">
-            Add User
-          </h2>
-          <form onSubmit={handleAddUser}>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <div className="mb-5">
-              <label
-                htmlFor="username"
-                className="block text-lg font-medium text-black mb-2 font-mono"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={newUser.username}
-                onChange={handleInputChange}
-                placeholder="Enter username"
-                required
-                className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm font-mono"
-              />
-            </div>
-            <div className="mb-5">
-              <label
-                htmlFor="email"
-                className="block text-lg font-medium text-black mb-2 font-mono"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={newUser.email}
-                onChange={handleInputChange}
-                placeholder="Enter email"
-                required
-                className="w-full p-3 bg-gray-100 font-mono text-black border border-gray-300 rounded-lg shadow-sm"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-blue-500 text-white font-semibold  font-mono rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
-            >
+      <Header
+        toggleSidebar={toggleSidebar}
+        className="fixed top-0 left-0 right-0 z-10"
+      />
+      <div className="flex flex-1 overflow-hidden">
+        <main className="flex-1 flex justify-center items-center bg-gray-200 p-8">
+          <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg border border-none">
+            <h2 className="text-3xl text-center font-bold text-black mb-6 font-mono">
               Add User
-            </button>
-          </form>
-        </div>
-        {/* View Users Section */}
-        <div className="w-full h-96 md:w-1/2 lg:w-1/3 bg-white p-6 rounded-lg shadow-lg border border-none ">
-          <h2 className="text-3xl text-center font-semibold text-black mb-6 font-mono">
-            View Users
+            </h2>
+            <form onSubmit={handleAddUser}>
+              {error && <p className="text-red-500 mb-4">{error}</p>}
+              <div className="mb-5">
+                <label
+                  htmlFor="username"
+                  className="block text-lg font-medium text-black mb-2 font-mono"
+                >
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={newUser.username}
+                  onChange={handleInputChange}
+                  placeholder="Enter username"
+                  required
+                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm font-mono"
+                />
+              </div>
+              <div className="mb-5">
+                <label
+                  htmlFor="email"
+                  className="block text-lg font-medium text-black mb-2 font-mono"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter email"
+                  required
+                  className="w-full p-3 bg-gray-100 font-mono text-black border border-gray-300 rounded-lg shadow-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 px-4 bg-blue-500 text-white font-semibold font-mono rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
+              >
+                Add User
+              </button>
+            </form>
+          </div>
+        </main>
+        {/* Sidebar */}
+        <aside
+          ref={sidebarRef}
+          className={`fixed lg:static top-0 lg:top-auto left-0 h-full lg:h-auto w-80 bg-gray-800 text-white flex flex-col z-10 transform lg:transform-none transition-transform ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0`}
+        >
+          <h2 className="text-2xl font-bold text-center p-4 font-mono">
+            Users
           </h2>
-          <ul className="bg-white rounded-lg shadow-lg border border-none h-64 overflow-y-auto scrollbar-hide">
+          <ul className="flex-1 overflow-y-auto">
             {users.map((user) => (
               <li
                 key={user.id}
-                className="p-4 border-b last:border-b-0 border-gray-300 flex justify-between items-center"
+                className="p-4 border-b border-gray-700 flex justify-between items-center"
               >
                 <div>
-                  <p className="text-black font-medium font-mono">
+                  <p className="text-white font-medium font-mono">
                     {user.username}
                   </p>
-                  <p className="text-black font-mono">{user.email}</p>
+                  <p className="text-gray-400 font-mono">{user.email}</p>
                 </div>
-                <button
-                  onClick={() => handleDeleteUser(user.id, user.email)}
-                  className="py-2 px-4 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition font-mono"
-                >
-                  Delete
-                </button>
+                
               </li>
             ))}
           </ul>
-        </div>
+        </aside>
       </div>
     </div>
   );
