@@ -1,5 +1,6 @@
 import "../assets/admin.css";
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import { auth, db } from "../firebase-config";
 import {
@@ -17,15 +18,18 @@ import {
 } from "firebase/auth";
 const emailAdmin = import.meta.env.VITE_EMAIL;
 const passwordAdmin = import.meta.env.VITE_PASSWORD;
+
 const AddUserPage = () => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     username: "",
     email: "",
-    password: "defaultPassword",
+    password: "123456",
     role: "user",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser({ ...newUser, [name]: value });
@@ -42,27 +46,44 @@ const AddUserPage = () => {
     getUsers();
   }, []);
 
+
   const handleAddUser = async (e) => {
     e.preventDefault();
     if (newUser.username && newUser.email) {
       const { username, email, password } = newUser;
-      await createUserWithEmailAndPassword(auth, email, password);
-      await addDoc(userCollectionRef, { id: Date.now(), username, email });
-      setUsers([...users, { id: Date.now(), ...newUser }]);
-      await signOut(auth);
-      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
-      setNewUser({
-        username: "",
-        email: "",
-        password: "defaultPassword",
-        role: "user",
-      });
-      setError("");
+      setLoading(true); // Set loading to true when starting the process
+      try {
+       
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await addDoc(userCollectionRef, { id: user.uid, username, email });
+
+        setUsers(prevUsers => [...prevUsers, { id: user.uid, ...newUser }]);
+
+        await signOut(auth);
+
+        await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
+
+        setNewUser({
+          username: "",
+          email: "",
+          password: "123456",
+          role: "user",
+        });
+
+        setError("");
+        navigate('/admin');
+      } catch (error) {
+        setError(error.message || "An error occurred.");
+      } finally {
+        setLoading(false); // Set loading to false after process is complete
+      }
     } else {
       setError("Username and Email are required.");
     }
   };
-
+  
   const handleDeleteUser = async (id, email) => {
     try {
       const userDocRef = doc(db, "users", id);
@@ -125,10 +146,12 @@ const AddUserPage = () => {
             </div>
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-blue-500 text-white font-semibold  font-mono rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
+              className={`w-full py-2 px-4 ${loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white font-semibold font-mono rounded-lg shadow-md transition`}
+              disabled={loading} // Disable button while loading
             >
-              Add User
+              {loading ? 'Adding User...' : 'Add User'}
             </button>
+
           </form>
         </div>
         {/* View Users Section */}
