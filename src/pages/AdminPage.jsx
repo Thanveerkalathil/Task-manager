@@ -12,19 +12,18 @@ import {
 import {
   createUserWithEmailAndPassword,
   deleteUser,
-  // getIdToken,
-  // signInWithCustomToken,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-const admin = "thanveer@gmail.com";
-const pass = "1234567";
+const emailAdmin = import.meta.env.VITE_EMAIL;
+const passwordAdmin = import.meta.env.VITE_PASSWORD;
 
 const AddUserPage = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     username: "",
@@ -38,7 +37,6 @@ const AddUserPage = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const [error, setError] = useState("");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser({ ...newUser, [name]: value });
@@ -85,33 +83,21 @@ const AddUserPage = () => {
       await signOut(auth);
       setNewUser({ username: "", email: "", password: "123456", role: "user" });
       setError("");
-      await signInWithEmailAndPassword(auth, admin, pass);
+      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
       navigate("/admin");
     } else {
       setError("Username and Email are required.");
     }
   };
 
-  const handleDeleteUser = async (id, email) => {
-    try {
-      const userDocRef = doc(db, "users", id);
-      const userAuth = await auth.getUserByEmail(email);
-      await deleteUser(userAuth);
-      await deleteDoc(userDocRef);
-      setUsers(users.filter((user) => user.id !== id));
-      console.log("User deleted successfully.");
-    } catch (error) {
-      console.error("Error deleting user", error);
-    }
-  };
-
+ 
   return (
     <div className="flex flex-col h-screen">
       <Header
         toggleSidebar={toggleSidebar}
         className="fixed top-0 left-0 right-0 z-10"
       />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex justify-center items-center bg-gray-200 p-8">
           <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg border border-none">
             <h2 className="text-3xl text-center font-bold text-black mb-6 font-mono">
@@ -186,12 +172,7 @@ const AddUserPage = () => {
                   </p>
                   <p className="text-gray-400 font-mono">{user.email}</p>
                 </div>
-                <button
-                  onClick={() => handleDeleteUser(user.id, user.email)}
-                  className="py-2 px-4 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition font-mono"
-                >
-                  Delete
-                </button>
+                
               </li>
             ))}
           </ul>
