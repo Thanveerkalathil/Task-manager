@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import Modal from "react-minimal-modal";
 import Header from "../components/Header";
+import { Link } from "react-router-dom";
 
 const UserPage = () => {
   const sideBarRef = useRef();
@@ -248,21 +249,26 @@ const UserPage = () => {
   };
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen overflow-hidden flex-col">
       <Header
         toggleSidebar={toggleSidebarUser}
         showFilters={true}
         onFilterChange={handleFilterChange}
         className="fixed top-0 left-0 right-0 z-10"
       />
-      <div className="flex flex-1">
+      <div className="flex h-full flex-1">
         {/* Sidebar */}
         <aside
           ref={sideBarRef}
-          className={`sidebar fixed inset-y-0 left-0 bg-gray-200 p-4 transition-transform transform ${
+          className={`sidebar h-5/6 fixed inset-y-0 left-0 bg-gray-200 p-4 pb-6 transition-transform transform overflow-y-scroll ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:relative md:translate-x-0 md:w-1/5 w-64 z-20`}
         >
+          <Link to="/profile">
+            <button className="bg-blue-500 text-md rounded-md px-4 py-2">
+              Profile
+            </button>
+          </Link>
           <h2 className="text-lg font-bold mb-4">Users</h2>
 
           <ul className="space-y-2">
@@ -346,7 +352,7 @@ const UserPage = () => {
           </form>
         </Modal>
         {/* Task Lists */}
-        <div className="w-4/5 p-4 overflow-x-auto flex space-x-4">
+        <div className="w-4/5 p-4 overflow-x-auto flex space-x-4 h-5/6 overflow-scroll">
           {users.map((user) => (
             <div
               key={user.id}
