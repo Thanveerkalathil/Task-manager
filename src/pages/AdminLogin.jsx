@@ -13,20 +13,26 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success("Login successful!");
+  
+      // Check if the logged-in user is an admin
       const adminCollectionRef = collection(db, "admin");
       const q = query(adminCollectionRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
+  
       if (querySnapshot.empty) {
-        throw new Error("This email does not have admin privileges.");
+        toast.error("This email does not have admin privileges.");
+        return; // Prevent redirect if not admin
       }
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Login successful!");
-      navigate("/admin");
+  
+      navigate("/adminPanel"); // Redirect to admin panel only if admin
     } catch (error) {
       toast.error("Login failed: " + error.message);
       console.log(error.message);
     }
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="bg-white p-8 rounded-lg shadow-md w-80">

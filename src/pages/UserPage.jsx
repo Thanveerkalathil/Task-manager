@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase-config";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import TaskModal from "../components/TaskModal";
+
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -72,16 +73,16 @@ const UserPage = () => {
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      {/* Sidebar */} 
       <div className="w-1/5 bg-gray-200 p-4">
-        <h2 className="text-lg font-bold mb-4">Users</h2>
-
+        <h2 className="text-lg font-bold mb-4">User</h2>
+        <Link to="/profile" ><button  type="button" className="bg-cyan-600 rounded-md text-white p-2 mb-2">User Profile</button></Link>
         <ul className="space-y-2">
           {users.map((user) => (
             <li key={user.id} className="p-2 bg-white rounded shadow">
               {user.name}
             </li>
-          ))}
+          ))} 
         </ul>
         <button
           onClick={handleUserLogOut}
@@ -123,7 +124,7 @@ const UserPage = () => {
                 Add Task
               </button>
             </div>
-            <ul className="space-y-2">
+            {/* <ul className="space-y-2">
               {tasks[user.id].map((task, index) => (
                 <li
                   key={index}
@@ -157,7 +158,7 @@ const UserPage = () => {
                   </div>
                 </li>
               ))}
-            </ul>
+            </ul> */}
           </div>
         ))}
       </div>
