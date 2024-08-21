@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { auth, storage, db } from "../firebase-config"; // Adjust path as needed
 import {
   updateProfile,
@@ -10,10 +10,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
