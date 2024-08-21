@@ -9,15 +9,21 @@ import {
   doc,
   getDocs,
 } from "firebase/firestore";
-import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
-
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+const emailAdmin = import.meta.env.VITE_EMAIL;
+const passwordAdmin = import.meta.env.VITE_PASSWORD;
 const AddUserPage = () => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     username: "",
     email: "",
     password: "defaultPassword",
-    role: "user"
+    role: "user",
   });
   const [error, setError] = useState("");
   const handleInputChange = (e) => {
@@ -43,7 +49,14 @@ const AddUserPage = () => {
       await createUserWithEmailAndPassword(auth, email, password);
       await addDoc(userCollectionRef, { id: Date.now(), username, email });
       setUsers([...users, { id: Date.now(), ...newUser }]);
-      setNewUser({ username: "", email: "", password: "defaultPassword",role: "user" });
+      await signOut(auth);
+      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
+      setNewUser({
+        username: "",
+        email: "",
+        password: "defaultPassword",
+        role: "user",
+      });
       setError("");
     } else {
       setError("Username and Email are required.");
