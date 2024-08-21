@@ -17,6 +17,7 @@ const AddUserPage = () => {
     username: "",
     email: "",
     password: "defaultPassword",
+    role: "user"
   });
   const [error, setError] = useState("");
   const handleInputChange = (e) => {
@@ -42,7 +43,7 @@ const AddUserPage = () => {
       await createUserWithEmailAndPassword(auth, email, password);
       await addDoc(userCollectionRef, { id: Date.now(), username, email });
       setUsers([...users, { id: Date.now(), ...newUser }]);
-      setNewUser({ username: "", email: "", password: "defaultPassword" });
+      setNewUser({ username: "", email: "", password: "defaultPassword",role: "user" });
       setError("");
     } else {
       setError("Username and Email are required.");
