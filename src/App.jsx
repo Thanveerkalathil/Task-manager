@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserLogin from "./pages/UserLogin";
 import UserPage from "./pages/UserPage";
-import TaskModal from "./components/TaskModal";
+// import TaskModal from "./components/TaskModal";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -30,18 +30,6 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={user ? <Navigate to="/user" /> : <UserLogin />}
-          />
-          <Route
-            path="/user"
-            element={
-              <RequireAuth>
-                <UserPage />
-              </RequireAuth>
-            }
-          />
           <Route path="/adminLogin" element={<AdminLogin />} />
           <Route
             path="/admin"
@@ -55,7 +43,19 @@ const App = () => {
               </RequireAuth>
             }
           />
-          <Route path="/modal" element={<TaskModal />} />
+          <Route
+            path="/"
+            element={user ? <Navigate to="/user" /> : <UserLogin />}
+          />
+          <Route
+            path="/user"
+            element={
+              <RequireAuth>
+                <UserPage />
+              </RequireAuth>
+            }
+          />
+          {/* <Route path="/modal" element={<TaskModal />} />. */}
         </Routes>
       </BrowserRouter>
       <ToastContainer />
