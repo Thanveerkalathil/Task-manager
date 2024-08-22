@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLogin from "./pages/AdminLogin";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AdminPage from "./pages/AdminPage";
@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserLogin from "./pages/UserLogin";
 import UserPage from "./pages/UserPage";
-import TaskModal from "./components/TaskModal";
 import Profile from "./pages/Profile";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
@@ -35,8 +34,8 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  const RequireAuth = React.memo(({ children }) => {
-    console.log(children)
+  const RequireAuth = ({ children }) => {
+    console.log(children);
     // If user is not logged in, redirect to login
     if (!user) {
       return <Navigate to="/" />;
@@ -49,11 +48,11 @@ const App = () => {
 
     // If user is a regular user, render children (user page)
     return children;
-  });
+  };
 
   const RequireAdminAuth = ({ children }) => {
     return isAdmin ? children : <Navigate to="/" />;
-  }
+  };
 
   return (
     <div>
@@ -87,12 +86,10 @@ const App = () => {
               </RequireAdminAuth>
             }
           />
-
-          <Route path="/modal" element={<TaskModal />} />
           <Route
             path="/profile"
             element={
-              <RequireAuth >
+              <RequireAuth>
                 <Profile />
               </RequireAuth>
             }
