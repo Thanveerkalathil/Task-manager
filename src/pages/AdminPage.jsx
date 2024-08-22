@@ -181,3 +181,4 @@ const AddUserPage = () => {
     </div>
   );
 };
+export default AddUserPage;
