@@ -2,6 +2,11 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./task-manager-931cc-firebase-adminsdk-4kta0-76ff7594d4.json');
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+
+// Initialize Firebase Admin SDK
+const serviceAccount = path.resolve(__dirname, process.env.FIREBASE_ADMIN_SDK_KEY_PATH);
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
