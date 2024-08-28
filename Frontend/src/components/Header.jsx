@@ -1,7 +1,7 @@
 import { auth } from "../firebase-config";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ toggleSidebar, showFilters, onFilterChange }) => {
+const Header = ({ toggleSidebar, showFilters, onFilterChange,handleResetTasks }) => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
@@ -11,6 +11,7 @@ const Header = ({ toggleSidebar, showFilters, onFilterChange }) => {
       console.log("Error logging out:", error.message);
     }
   };
+  
   return (
     <header className="bg-slate-900 text-white flex w-full">
       <div className="container w-lvw px-4 flex justify-between items-center w-full">
@@ -46,6 +47,12 @@ const Header = ({ toggleSidebar, showFilters, onFilterChange }) => {
                 className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               >
                 All
+              </button>
+              <button
+                onClick={()=>{handleResetTasks()}}
+                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Reset All Tasks
               </button>
             </div>
           )}

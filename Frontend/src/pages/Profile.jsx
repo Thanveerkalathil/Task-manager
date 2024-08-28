@@ -16,7 +16,7 @@ import {
   where,
 } from "firebase/firestore";
 import { FaTimes } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [username, setUsername] = useState("");
@@ -27,6 +27,7 @@ const Profile = () => {
   const [currentPassword, setCurrentPassword] = useState(""); // For re-authentication
 
   const currentUser = auth.currentUser;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentUser) {
@@ -34,7 +35,8 @@ const Profile = () => {
       setEmail(currentUser.email || "");
       setImage(currentUser.photoURL || "https://via.placeholder.com/150");
     }
-  }, [currentUser]);
+  });
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -49,7 +51,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (currentUser) {
       try {
         // Re-authenticate the user if a current password is provided
@@ -60,55 +62,68 @@ const Profile = () => {
           );
           await reauthenticateWithCredential(currentUser, credential);
         }
-
-        // Handle profile picture upload
+  
         let photoURL = image;
+        let profileUpdated = false;
+  
+        // Handle profile picture upload
         if (file) {
-          // Upload new profile picture
           const imageRef = ref(
             storage,
             `profilePictures/${currentUser.uid}/${file.name}`
           );
           await uploadBytes(imageRef, file);
           photoURL = await getDownloadURL(imageRef);
+          profileUpdated = true; // Mark as updated if photo is uploaded
         }
-
-        // Update profile information
-        await updateProfile(currentUser, {
-          displayName: username,
-          photoURL: photoURL, // Ensure this is a valid URL
-        });
-
-        // Update Firestore with new username
-        const userCollectionRef = collection(db, "users");
-        const q = query(userCollectionRef, where("id", "==", currentUser.uid));
-        const usersSnap = await getDocs(q);
-
-        
-        // Check if the document exists
-        if (!usersSnap.empty) {
-          const docRef = doc(db, "users", usersSnap.docs[0].id); // Get the first matching document
-          await updateDoc(docRef, { username: username }); // Update the document
-          console.log("Username updated successfully");
-        } else {
-          console.error("User document not found");
+  
+        // Update profile information if any changes were made
+        if (currentUser.displayName !== username || currentUser.photoURL !== photoURL) {
+          await updateProfile(currentUser, {
+            displayName: username,
+            photoURL: photoURL,
+          });
+          profileUpdated = true; // Mark as updated if profile info is changed
         }
+  
         // Update password if needed
         if (password) {
           await updatePassword(currentUser, password);
           setPassword(""); // Clear password field
+          profileUpdated = true; // Mark as updated if password is changed
         }
-
+  
+        // Update Firestore with new username and profileComplete status
+        const userCollectionRef = collection(db, "users");
+        const q = query(userCollectionRef, where("id", "==", currentUser.uid));
+        const usersSnap = await getDocs(q);
+  
+        if (!usersSnap.empty) {
+          const docRef = doc(db, "users", usersSnap.docs[0].id);
+          await updateDoc(docRef, {
+            username: username,
+            profileComplete: true, // Mark profile as complete
+          });
+          console.log("Profile updated successfully");
+        } else {
+          console.error("User document not found");
+        }
+  
         // Clear currentPassword field
         setCurrentPassword("");
-
+  
         alert("Profile updated successfully!");
+  
+        // Navigate to user page after updating profile
+        navigate("/user");
+        console.log("Profile updated successfully");
       } catch (error) {
         console.error("Error updating profile: ", error);
         alert("Error updating profile: " + error.message);
       }
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -224,8 +239,7 @@ const Profile = () => {
             </button>
           </form>
         </div>
-        <Link to="/">
-          {" "}
+        <Link to="/user">
           <button className="text-white pl-2 rounded-md p-2 focus:outline-none bg-red-500">
             <FaTimes className="h-6 w-6" />
           </button>

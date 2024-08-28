@@ -1,17 +1,11 @@
 import "../assets/admin.css";
 import { useEffect, useRef, useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 import Header from "../components/Header";
 import { db } from "../firebase-config";
-import {
-  addDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 import { useNavigate } from "react-router-dom";
-
-
 
 const AddUserPage = () => {
   const navigate = useNavigate();
@@ -23,6 +17,7 @@ const AddUserPage = () => {
     email: "",
     password: "123456",
     role: "user",
+    profileComplete: false, 
   });
   const sidebarRef = useRef(null);
 
@@ -65,52 +60,56 @@ const AddUserPage = () => {
     if (newUser.username && newUser.email) {
       try {
         // Correct URL construction using template literals
-        const url = `${import.meta.env.VITE_PORT}/create-user`;
-  
+        const url = `${import.meta.env.VITE_API_URL}/create-user`;
+
         // Use Axios to send a POST request
         const response = await axios.post(url, {
           email: newUser.email,
           password: newUser.password,
           username: newUser.username,
         });
-  
+
         // Extract user ID from the response data
         const { uid } = response.data;
-  
+
         // Add the user to Firestore
-        await addDoc(collection(db, 'users'), {
+        await addDoc(collection(db, "users"), {
           id: uid,
           username: newUser.username,
           email: newUser.email,
-          role: 'user',
+          role: "user",
+          profileComplete: false, 
         });
-  
+
         // Update state with the new user and reset the form
         setUsers([...users, { id: uid, ...newUser }]);
-        setNewUser({ username: '', email: '', password: '123456', role: 'user' });
-        setError('');
-        navigate('/admin');
+        setNewUser({
+          username: "",
+          email: "",
+          password: "123456",
+          role: "user",
+          profileComplete: false, 
+        });
+        setError("");
+        navigate("/admin");
       } catch (error) {
         // More detailed error handling for Axios
         if (error.response) {
           // Server responded with a status other than 200 range
-          setError(error.response.data.message || 'Failed to create user');
+          setError(error.response.data.message || "Failed to create user");
         } else if (error.request) {
           // Request was made but no response received
-          setError('No response from server. Please try again.');
+          setError("No response from server. Please try again.");
         } else {
           // Something happened in setting up the request
           setError(error.message);
         }
       }
     } else {
-      setError('Username and Email are required.');
+      setError("Username and Email are required.");
     }
   };
-  
-  
 
- 
   return (
     <div className="flex flex-col h-screen">
       <Header
@@ -192,7 +191,6 @@ const AddUserPage = () => {
                   </p>
                   <p className="text-gray-400 font-mono">{user.email}</p>
                 </div>
-                
               </li>
             ))}
           </ul>

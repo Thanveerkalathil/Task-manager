@@ -21,7 +21,6 @@ const AdminLogin = () => {
       const q = query(adminCollectionRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
   
-      console.log(querySnapshot.empty);
       if (querySnapshot.empty) {
         toast.error("This email does not have admin privileges.");
         return; // Prevent redirect if not admin
