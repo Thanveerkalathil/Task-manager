@@ -1,27 +1,30 @@
 import { auth } from "../firebase-config";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ toggleSidebar, showFilters, onFilterChange }) => {
+// eslint-disable-next-line react/prop-types
+const Header = ({ toggleSidebar, showFilters, onFilterChange, admin, user }) => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      navigate("/user");
+      if (admin) {
+        navigate("/admin");
+      } else navigate("/user");
     } catch (error) {
       console.log("Error logging out:", error.message);
     }
   };
   return (
     <header className="bg-slate-900 text-white flex w-full">
-      <div className="container w-lvw px-4 flex justify-between items-center w-full">
+      <div className="container px-4 flex justify-between items-center w-full">
         {/* Logo */}
-        <div className="text-sm md:text-2xl font-bold py-3">
-          <h1 className="mb-1.5">Welcome {auth.currentUser.email || "User"}</h1>
+        <div className="text-sm md:text-2xl font-semibold py-3">
+          <h1 className="mb-.5 capitalize">Welcome, {user || "User"}</h1>
 
           {showFilters && (
             <div className="flex-col md:flex-row space-x-2">
-              <div className="text-[16px] font-light text-blue-300 ms-2">
-                <h2>View tasks</h2>
+              <div className="text-[13px] font-semibold uppercase text-yellow-400 ms-2">
+                <h2>Filter Tasks</h2>
               </div>
               <button
                 onClick={() => onFilterChange("daily")}

@@ -2,16 +2,9 @@ import "../assets/admin.css";
 import { useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { auth, db } from "../firebase-config";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
-  deleteUser,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
@@ -90,17 +83,17 @@ const AddUserPage = () => {
     }
   };
 
- 
   return (
     <div className="flex flex-col h-screen">
       <Header
+        admin
         toggleSidebar={toggleSidebar}
         className="fixed top-0 left-0 right-0 z-10"
       />
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex justify-center items-center bg-gray-200 p-8">
           <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg border border-none">
-            <h2 className="text-3xl text-center font-bold text-black mb-6 font-mono">
+            <h2 className="text-3xl text-center font-bold text-black mb-6">
               Add User
             </h2>
             <form onSubmit={handleAddUser}>
@@ -108,7 +101,7 @@ const AddUserPage = () => {
               <div className="mb-5">
                 <label
                   htmlFor="username"
-                  className="block text-lg font-medium text-black mb-2 font-mono"
+                  className="block text-lg font-medium text-black mb-2"
                 >
                   Username
                 </label>
@@ -120,13 +113,13 @@ const AddUserPage = () => {
                   onChange={handleInputChange}
                   placeholder="Enter username"
                   required
-                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm font-mono"
+                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm"
                 />
               </div>
               <div className="mb-5">
                 <label
                   htmlFor="email"
-                  className="block text-lg font-medium text-black mb-2 font-mono"
+                  className="block text-lg font-medium text-black mb-2"
                 >
                   Email
                 </label>
@@ -138,12 +131,12 @@ const AddUserPage = () => {
                   onChange={handleInputChange}
                   placeholder="Enter email"
                   required
-                  className="w-full p-3 bg-gray-100 font-mono text-black border border-gray-300 rounded-lg shadow-sm"
+                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-2 px-4 bg-blue-500 text-white font-semibold font-mono rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
+                className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
               >
                 Add User
               </button>
@@ -157,9 +150,7 @@ const AddUserPage = () => {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0`}
         >
-          <h2 className="text-2xl font-bold text-center p-4 font-mono">
-            Users
-          </h2>
+          <h2 className="text-2xl font-bold text-center p-4">Users</h2>
           <ul className="flex-1 overflow-y-auto">
             {users.map((user) => (
               <li
@@ -167,12 +158,9 @@ const AddUserPage = () => {
                 className="p-4 border-b border-gray-700 flex justify-between items-center"
               >
                 <div>
-                  <p className="text-white font-medium font-mono">
-                    {user.username}
-                  </p>
-                  <p className="text-gray-400 font-mono">{user.email}</p>
+                  <p className="text-white font-medium">{user.username}</p>
+                  <p className="text-gray-400">{user.email}</p>
                 </div>
-                
               </li>
             ))}
           </ul>

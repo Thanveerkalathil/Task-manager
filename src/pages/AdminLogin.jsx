@@ -36,14 +36,14 @@ const AdminLogin = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="bg-white p-8 rounded-lg shadow-md w-80">
-        <h1 className="text-2xl font-bold text-black mb-6 text-center font-mono">
+        <h1 className="text-2xl font-bold text-black mb-6 text-center">
           Admin Login
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-black mb-1 font-mono"
+              className="block text-sm font-medium text-black mb-1"
             >
               Email
             </label>
@@ -52,7 +52,7 @@ const AdminLogin = () => {
               id="email"
               placeholder="Email"
               required
-              className="w-full p-2 border border-gray-300 rounded font-mono"
+              className="w-full p-2 border border-gray-300 rounded"
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
@@ -61,7 +61,7 @@ const AdminLogin = () => {
           <div className="mb-6">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-black mb-1 font-mono"
+              className="block text-sm font-medium text-black mb-1"
             >
               Password
             </label>
@@ -70,7 +70,7 @@ const AdminLogin = () => {
               id="password"
               placeholder="Password"
               required
-              className="w-full p-2 border border-gray-300 rounded font-mono"
+              className="w-full p-2 border border-gray-300 rounded"
               onChange={(e) => {
                 setPassword(e.target.value);
               }}

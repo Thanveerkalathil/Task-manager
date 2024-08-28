@@ -34,6 +34,7 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  // eslint-disable-next-line react/prop-types
   const RequireAuth = ({ children }) => {
     console.log(children);
     // If user is not logged in, redirect to login
@@ -50,6 +51,7 @@ const App = () => {
     return children;
   };
 
+  // eslint-disable-next-line react/prop-types
   const RequireAdminAuth = ({ children }) => {
     return isAdmin ? children : <Navigate to="/" />;
   };
@@ -78,7 +80,7 @@ const App = () => {
             element={isAdmin ? <Navigate to="/adminPanel" /> : <AdminLogin />}
           />
 
-          <Route
+          <Route  
             path="/adminPanel"
             element={
               <RequireAdminAuth>
