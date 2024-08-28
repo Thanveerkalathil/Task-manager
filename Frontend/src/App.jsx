@@ -76,6 +76,7 @@ const App = () => {
 
     if (!isAdmin) {
       return null;
+      
     }
     return children;
   };
@@ -85,7 +86,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route
-          
+
             path="/"
             element={user ? <Navigate to="/user" replace /> : <UserLogin />}
           />
