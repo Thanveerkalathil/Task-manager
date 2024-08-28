@@ -85,6 +85,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route
+          
             path="/"
             element={user ? <Navigate to="/user" replace /> : <UserLogin />}
           />
