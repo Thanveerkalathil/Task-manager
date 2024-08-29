@@ -13,7 +13,8 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 const App = () => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [profileComplete, setProfileComplete] = useState(false);
+  const [profileComplete, setProfileComplete] = useState(null);
+  const [loading, setLoading] = useState(true); // Loading state to handle async data fetching
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -37,8 +38,9 @@ const App = () => {
       } else {
         setUser(null);
         setIsAdmin(false);
-        setProfileComplete(false);
+        setProfileComplete(null);
       }
+      setLoading(false); // Finish loading when auth state is resolved
     });
 
     return () => unsubscribe();
@@ -48,18 +50,21 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+      if (loading) return; // Wait until loading finishes before deciding where to navigate
+      console.log(profileComplete)
       if (!user) {
         navigate("/", { replace: true });
       } else if (isAdmin) {
         navigate("/adminPanel", { replace: true });
       } else if (!profileComplete) {
         navigate("/profile", { replace: true });
-        console.log("Profile Complete")
+      } else if (profileComplete) {
+        navigate("/user", { replace: true });
       }
-    }, [user, isAdmin, profileComplete, navigate]);
+    }, [user, isAdmin, profileComplete, loading, navigate]);
 
-    if (!user || isAdmin || !profileComplete) {
-      return null;
+    if (loading || user === null || profileComplete === null) {
+      return null; // Show nothing while loading or determining state
     }
 
     return children;
@@ -69,15 +74,15 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!isAdmin) {
+      if (!loading && !isAdmin) {
         navigate("/", { replace: true });
       }
-    }, [isAdmin, navigate]);
+    }, [isAdmin, loading, navigate]);
 
-    if (!isAdmin) {
+    if (loading || !isAdmin) {
       return null;
-      
     }
+
     return children;
   };
 
@@ -85,11 +90,7 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Routes>
-          <Route
-
-            path="/"
-            element={user ? <Navigate to="/user" replace /> : <UserLogin />}
-          />
+          <Route path="/" element={user ? <Navigate to="/user" replace /> : <UserLogin />} />
           <Route
             path="/user"
             element={
@@ -111,12 +112,9 @@ const App = () => {
               </RequireAdminAuth>
             }
           />
-          <Route
-            path="/profile"
-            element={
-                <Profile />
-            }
-          />
+          {!isAdmin && user && (
+            <Route path="/profile" element={<Profile />} />
+          )}
         </Routes>
       </BrowserRouter>
       <ToastContainer />

@@ -331,13 +331,15 @@ const UserPage = () => {
   };
 
   const handleResetTasks = async () => {
-      // Show a confirmation dialog to the user
-  const userConfirmed = window.confirm("Are you sure you want to delete all tasks for all users?");
+    // Show a confirmation dialog to the user
+    const userConfirmed = window.confirm(
+      "Are you sure you want to delete all tasks for all users?"
+    );
 
-  if (!userConfirmed) {
-    // If the user clicks "Cancel," exit the function
-    return;
-  }
+    if (!userConfirmed) {
+      // If the user clicks "Cancel," exit the function
+      return;
+    }
 
     try {
       // Get a reference to the users collection
@@ -391,7 +393,7 @@ const UserPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col">
+    <div className="flex flex-col h-screen overflow-hidden">
       <Header
         toggleSidebar={toggleSidebarUser}
         showFilters={true}
@@ -400,294 +402,314 @@ const UserPage = () => {
         className="fixed top-0 left-0 right-0 z-10"
       />
 
-      <div className="flex h-full flex-1">
+      <div className="flex flex-1">
         {/* Sidebar */}
         <aside
           ref={sideBarRef}
-          className={`sidebar h-5/6 fixed inset-y-0 left-0 bg-gray-200 p-4 pb-6 transition-transform transform overflow-y-scroll ${
+          className={`sidebar fixed inset-y-0 left-0 bg-gray-200 p-4 pb-6 transition-transform transform overflow-y-auto ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:relative md:translate-x-0 md:w-1/5 w-64 z-20`}
         >
           <Link to="/profile">
-            <button className="bg-blue-500 text-md rounded-md px-4 py-2">
+            <button className="bg-blue-500 text-md rounded-md px-4 py-2 mb-4 w-full text-white">
               Profile
             </button>
           </Link>
           <h2 className="text-lg font-bold mb-4">Users</h2>
-
           <ul className="space-y-2">
             {users.map((user) => (
               <li key={user.id} className="p-2 bg-white rounded shadow">
-                <h3>{user.username}</h3>
-                <h3>{user.email}</h3>
+                <h3 className="font-semibold">{user.username}</h3>
+                <p className="text-sm text-gray-600">{user.email}</p>
               </li>
             ))}
           </ul>
         </aside>
 
-        <Modal
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          title={isEditing ? "Edit Task" : "Add Task"}
-        >
-          <form className="space-y-4" onSubmit={addTask}>
-            {/* Task Input */}
-            <div>
-              <label
-                htmlFor="task"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Task
-              </label>
-              <input
-                type="text"
-                name="task"
-                value={newTask.task}
-                onChange={handleTaskInput}
-                id="task"
-                placeholder="Enter task"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            {/* Priority Input */}
-            <div>
-              <label
-                htmlFor="priority"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Priority
-              </label>
-              <select
-                id="priority"
-                name="priority"
-                value={newTask.priority}
-                onChange={handleTaskInput}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
-
-            {/* Assigned Date Input */}
-            <div>
-              <label
-                htmlFor="assign_date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Assigned Date
-              </label>
-              <input
-                type="date"
-                name="assign_date"
-                value={newTask.assign_date}
-                onChange={handleTaskInput}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            {/* Last Date Input */}
-            <div>
-              <label
-                htmlFor="last_date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Last Date
-              </label>
-              <input
-                type="date"
-                name="last_date"
-                value={newTask.last_date}
-                onChange={handleTaskInput}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {isEditing ? "Update Task" : "Add Task"}
-              </button>
-            </div>
-          </form>
-        </Modal>
-
-        {/* Task Lists */}
-        <div className="w-4/5 p-4 overflow-x-auto flex space-x-4 h-5/6 overflow-scroll">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="min-w-[300px] bg-white p-4 rounded shadow"
-            >
-              <h2 className="text-xl flex justify-between font-bold mb-4 capitalize">
-                {`${user.username}'s Tasks`}
-                <button
-                  onClick={() => openTaskModal(user.id)}
-                  className="text-blue-600 hover:cursor-pointer text-2xl"
+        {/* Main Content */}
+        <div className="flex flex-col flex-1 p-4 space-y-4 overflow-auto">
+          <Modal
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            title={isEditing ? "Edit Task" : "Add Task"}
+          >
+            <form className="space-y-4" onSubmit={addTask}>
+              {/* Task Input */}
+              <div>
+                <label
+                  htmlFor="task"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  +
+                  Task
+                </label>
+                <input
+                  type="text"
+                  name="task"
+                  value={newTask.task}
+                  onChange={handleTaskInput}
+                  id="task"
+                  placeholder="Enter task"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              {/* Priority Input */}
+              <div>
+                <label
+                  htmlFor="priority"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Priority
+                </label>
+                <select
+                  id="priority"
+                  name="priority"
+                  value={newTask.priority}
+                  onChange={handleTaskInput}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+
+              {/* Assigned Date Input */}
+              <div>
+                <label
+                  htmlFor="assign_date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Assigned Date
+                </label>
+                <input
+                  type="date"
+                  name="assign_date"
+                  value={newTask.assign_date}
+                  onChange={handleTaskInput}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              {/* Last Date Input */}
+              <div>
+                <label
+                  htmlFor="last_date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Last Date
+                </label>
+                <input
+                  type="date"
+                  name="last_date"
+                  value={newTask.last_date}
+                  onChange={handleTaskInput}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div>
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {isEditing ? "Update Task" : "Add Task"}
                 </button>
-              </h2>
-              <div className="task-list">
-                {user.tasks ? (
-                  <ul>
-                    {filterTasks(user.tasks)
-                      .filter((task) => !task.isDeleted && !task.done)
-                      .map((task) => (
-                        <li
-                          key={task.id}
-                          className={`task-item p-4 mb-2 border-l-4 ${getBorderColor(
-                            task.priority
-                          )} bg-white shadow-md rounded flex justify-between items-center`}
-                        >
-                          <div>
-                            <h3
-                              className={`${
-                                task.done ? "line-through" : ""
-                              } text-xl font-semibold`}
-                            >
-                              {task.task}
-                            </h3>
-                            <p className="text-xs text-gray-600">Assigned:-</p>
-                            <p className="text-xs text-gray-600">
-                              Date: {task.assign_date}
-                            </p>
-                            <p className="text-xs text-gray-500 flex">
-                              by: {task.assignedBy}
-                            </p>
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2 ">
-                              <button
-                                onClick={() =>
-                                  toggleTaskDone(user.id, task.id, task.done)
-                                }
-                                className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded"
-                                title={
-                                  task.done
-                                    ? "Undo task, click this button"
-                                    : "Complete task, click this button"
-                                }
-                              >
-                                {task.done ? (
-                                  <FaCheckSquare className="text-blue-500" />
-                                ) : (
-                                  <FaSquare className="text-blue-500" />
-                                )}
-                              </button>
-
-                              <button
-                                onClick={() => handleEdit(user.id, task)} // Handler to open modal for editing
-                                className="text-yellow-500 hover:text-yellow-700"
-                                title={"Edit task"}
-                              >
-                                <FaEdit />
-                              </button>
-
-                              <button
-                                onClick={() => handleDelete(user.id, task.id)}
-                                className="text-sm p-2 rounded"
-                                title={"Delete task"}
-                              >
-                                <FaTrashAlt className="text-red-500 hover:text-red-700" />
-                              </button>
-                            </div>
-                            <p className="text-xs text-gray-600">
-                              Last Date: {task.last_date}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                ) : (
-                  <p>No tasks available</p>
-                )}
               </div>
-              {/* Completed Tasks */}
-              <br />
-              <hr className="border-t-2 border-gray-300 my-4" />
-              <div className="completed-tasks">
-                <h3 className="text-lg font-bold mb-2">Completed Tasks</h3>
+            </form>
+          </Modal>
 
-                {user.tasks ? (
-                  <ul>
-                    {filterTasks(user.tasks)
-                      .filter((task) => !task.isDeleted && task.done)
-                      .map((task) => (
-                        <li
-                          key={task.id}
-                          className={`task-item p-4 mb-2 border-l-4 ${getBorderColor(
-                            task.priority
-                          )} bg-white shadow-md rounded flex justify-between items-center`}
-                        >
-                          <div>
-                            <h3
-                              className={`${
-                                task.done ? "line-through" : ""
-                              } text-xl font-semibold`}
-                            >
-                              {task.task}
-                            </h3>
-                            <p className="text-xs text-gray-600">Assigned:-</p>
-                            <p className="text-xs text-gray-600">
-                              Date: {task.assign_date}
-                            </p>
-                            <p className="text-xs text-gray-500 flex">
-                              by: {task.assignedBy}
-                            </p>
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-2">
-                              <button
-                                onClick={() =>
-                                  toggleTaskDone(user.id, task.id, task.done)
-                                }
-                                className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded"
-                                title={
-                                  task.done
-                                    ? "Undo task, click this button"
-                                    : "Complete task, click this button"
-                                }
-                              >
-                                {task.done ? (
-                                  <FaCheckSquare className="text-blue-500" />
-                                ) : (
-                                  <FaSquare className="text-blue-500" />
-                                )}
-                              </button>
-                              <button
-                                onClick={() => handleEdit(user.id, task)} // Handler to open modal for editing
-                                className="text-yellow-500 hover:text-yellow-700"
-                                title={"Edit task"}
-                              >
-                                <FaEdit />
-                              </button>{" "}
-                              <button
-                                onClick={() => handleDelete(user.id, task.id)}
-                                className="text-sm p-2 rounded"
-                                title={"Delete task"}
-                              >
-                                <FaTrashAlt className="text-red-500 hover:text-red-700" />
-                              </button>
+          {/* Task Lists */}
+          <div className="flex flex-wrap gap-4 overflow-x-auto">
+            {users.map((user) => (
+              <div
+                key={user.id}
+                className="min-w-[300px] bg-white p-4 rounded shadow flex flex-col space-y-4"
+              >
+                <h2 className="text-xl flex justify-between font-bold capitalize">
+                  {`${user.username}'s Tasks`}
+                  <button
+                    onClick={() => openTaskModal(user.id)}
+                    className="text-blue-600 hover:text-blue-700 text-2xl"
+                  >
+                    +
+                  </button>
+                </h2>
+                <div className="task-list">
+                  {user.tasks ? (
+                    <ul>
+                      {filterTasks(user.tasks)
+                        .filter((task) => !task.isDeleted && !task.done)
+                        .map((task) => (
+                          <li
+                            key={task.id}
+                            className={`task-item p-4 mb-2 border-l-4 ${getBorderColor(
+                              task.priority
+                            )} bg-white shadow-md rounded flex flex-col space-y-2`}
+                          >
+                            <div className="flex justify-between">
+                              <div>
+                                <h3
+                                  className={`${
+                                    task.done ? "line-through" : ""
+                                  } text-xl font-semibold`}
+                                >
+                                  {task.task}
+                                </h3>
+                                <p className="text-xs text-gray-600">
+                                  Assigned Date:
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  {task.assign_date}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  by: {task.assignedBy}
+                                </p>
+                              </div>
+
+                              <div>
+                                <div className="flex items-center space-x-2 mt-2">
+                                  <button
+                                    onClick={() =>
+                                      toggleTaskDone(
+                                        user.id,
+                                        task.id,
+                                        task.done
+                                      )
+                                    }
+                                    className="text-blue-500 hover:text-blue-700"
+                                    title={
+                                      task.done ? "Undo task" : "Complete task"
+                                    }
+                                  >
+                                    {task.done ? (
+                                      <FaCheckSquare />
+                                    ) : (
+                                      <FaSquare />
+                                    )}
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleEdit(user.id, task)}
+                                    className="text-yellow-500 hover:text-yellow-700"
+                                    title="Edit task"
+                                  >
+                                    <FaEdit />
+                                  </button>
+
+                                  <button
+                                    onClick={() =>
+                                      handleDelete(user.id, task.id)
+                                    }
+                                    className="text-red-500 hover:text-red-700"
+                                    title="Delete task"
+                                  >
+                                    <FaTrashAlt />
+                                  </button>
+                                </div>
+
+                                <p className="text-xs mt-5 text-gray-600">
+                                  Last Date: {task.last_date}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-xs text-gray-600">
-                              Last Date: {task.last_date}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                ) : (
-                  <p>No tasks available</p>
-                )}
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p>No tasks available</p>
+                  )}
+                </div>
+
+                {/* Completed Tasks */}
+                <hr className="border-t-2 border-gray-300 my-4" />
+                <div className="completed-tasks">
+                  <h3 className="text-lg font-bold mb-2">Completed Tasks</h3>
+
+                  {user.tasks ? (
+                    <ul>
+                      {filterTasks(user.tasks)
+                        .filter((task) => !task.isDeleted && task.done)
+                        .map((task) => (
+                          <li
+                            key={task.id}
+                            className={`task-item p-4 mb-2 border-l-4 ${getBorderColor(
+                              task.priority
+                            )} bg-white shadow-md rounded flex flex-col space-y-2`}
+                          >
+                            <div className="flex justify-between">
+                              <div>
+                                <h3
+                                  className={`${
+                                    task.done ? "line-through" : ""
+                                  } text-xl font-semibold`}
+                                >
+                                  {task.task}
+                                </h3>
+                                <p className="text-xs text-gray-600">
+                                  Assigned Date:
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  {task.assign_date}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  by: {task.assignedBy}
+                                </p>
+                              </div>
+                              <div>
+                                <div className="flex items-center space-x-2 mt-2">
+                                  <button
+                                    onClick={() =>
+                                      toggleTaskDone(
+                                        user.id,
+                                        task.id,
+                                        task.done
+                                      )
+                                    }
+                                    className="text-blue-500 hover:text-blue-700"
+                                    title={
+                                      task.done ? "Undo task" : "Complete task"
+                                    }
+                                  >
+                                    {task.done ? (
+                                      <FaCheckSquare />
+                                    ) : (
+                                      <FaSquare />
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() => handleEdit(user.id, task)}
+                                    className="text-yellow-500 hover:text-yellow-700"
+                                    title="Edit task"
+                                  >
+                                    <FaEdit />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleDelete(user.id, task.id)
+                                    }
+                                    className="text-red-500 hover:text-red-700"
+                                    title="Delete task"
+                                  >
+                                    <FaTrashAlt />
+                                  </button>
+                                </div>
+                                <p className="text-xs mt-5 text-gray-600">
+                                  Last Date: {task.last_date}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p>No tasks available</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

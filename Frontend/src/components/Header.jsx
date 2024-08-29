@@ -1,8 +1,11 @@
 import { auth } from "../firebase-config";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-const Header = ({ toggleSidebar, showFilters, onFilterChange,handleResetTasks }) => {
+const Header = ({ toggleSidebar, showFilters, onFilterChange, handleResetTasks }) => {
   const navigate = useNavigate();
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+
   const handleLogout = async () => {
     try {
       await auth.signOut();
@@ -11,59 +14,105 @@ const Header = ({ toggleSidebar, showFilters, onFilterChange,handleResetTasks })
       console.log("Error logging out:", error.message);
     }
   };
-  
+
+  const handleFilterChange = (filter) => {
+    onFilterChange(filter);
+    setShowFilterOptions(false); // Close the dropdown after selection
+  };
+
   return (
-    <header className="bg-slate-900 text-white flex w-full">
-      <div className="container w-lvw px-4 flex justify-between items-center w-full">
+    <header className="bg-slate-900 text-white flex flex-col md:flex-row w-full">
+      <div className="container mx-auto px-4 flex justify-between items-center w-full py-3">
         {/* Logo */}
-        <div className="text-sm md:text-2xl font-bold py-3">
+        <div className="text-sm md:text-2xl font-bold">
           <h1 className="mb-1.5">Welcome {auth.currentUser.email || "User"}</h1>
 
           {showFilters && (
-            <div className="flex-col md:flex-row space-x-2">
+            <div className="md:flex hidden flex-col space-y-2">
               <div className="text-[16px] font-light text-blue-300 ms-2">
-                <h2>View tasks</h2>
               </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleFilterChange("daily")}
+                  className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                >
+                  Daily
+                </button>
+                <button
+                  onClick={() => handleFilterChange("weekly")}
+                  className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                >
+                  Weekly
+                </button>
+                <button
+                  onClick={() => handleFilterChange("monthly")}
+                  className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => handleFilterChange("all")}
+                  className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => handleResetTasks()}
+                  className="text-sm font-medium py-1 px-2 bg-red-500 text-white rounded-md hover:bg-red-700"
+                >
+                  Reset All Tasks
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center">
+          {/* Toggle Button for Mobile */}
+          <button
+            className="md:hidden py-2 px-3.5 bg-gray-800 text-white rounded-md shadow-md m-2"
+            onClick={() => setShowFilterOptions(!showFilterOptions)}
+          >
+            View Tasks
+          </button>
+
+          {/* Filter Options for Mobile */}
+          {showFilterOptions && (
+            <div className="md:hidden absolute top-16 left-0 w-full bg-slate-800 text-white flex flex-col space-y-2 py-2 px-4">
               <button
-                onClick={() => onFilterChange("daily")}
-                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                onClick={() => handleFilterChange("daily")}
+                className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               >
                 Daily
               </button>
               <button
-                onClick={() => onFilterChange("weekly")}
-                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                onClick={() => handleFilterChange("weekly")}
+                className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               >
                 Weekly
               </button>
               <button
-                onClick={() => onFilterChange("monthly")}
-                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                onClick={() => handleFilterChange("monthly")}
+                className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               >
                 Monthly
               </button>
               <button
-                onClick={() => onFilterChange("all")}
-                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+                onClick={() => handleFilterChange("all")}
+                className="text-sm font-medium py-1 px-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               >
                 All
               </button>
               <button
-                onClick={()=>{handleResetTasks()}}
-                className="text-sm sm:text:xs font-medium py-1 px-2 my-1 sm:py-2 sm:px-3 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={() => {
+                  handleResetTasks();
+                  setShowFilterOptions(false); // Close the dropdown after resetting tasks
+                }}
+                className="text-sm font-medium py-1 px-2 bg-red-500 text-white rounded-md hover:bg-red-700"
               >
                 Reset All Tasks
               </button>
             </div>
           )}
-        </div>
-        <div className="p-2 sm:flex">
-          <button
-            className="md:hidden py-2 px-3.5 bg-gray-800 text-white rounded-md shadow-md m-2"
-            onClick={toggleSidebar}
-          >
-            View Users
-          </button>
 
           {/* Logout Button */}
           <button

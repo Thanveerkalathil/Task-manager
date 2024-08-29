@@ -25,6 +25,7 @@ const Profile = () => {
   const [image, setImage] = useState("https://via.placeholder.com/150");
   const [file, setFile] = useState(null);
   const [currentPassword, setCurrentPassword] = useState(""); // For re-authentication
+  const [loading, setLoading] = useState(false); // To show loading spinner
 
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Profile = () => {
       setEmail(currentUser.email || "");
       setImage(currentUser.photoURL || "https://via.placeholder.com/150");
     }
-  });
+  }, [currentUser]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -51,7 +52,8 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoading(true); // Show loading spinner
+
     if (currentUser) {
       try {
         // Re-authenticate the user if a current password is provided
@@ -62,10 +64,9 @@ const Profile = () => {
           );
           await reauthenticateWithCredential(currentUser, credential);
         }
-  
+
         let photoURL = image;
-        let profileUpdated = false;
-  
+
         // Handle profile picture upload
         if (file) {
           const imageRef = ref(
@@ -74,56 +75,55 @@ const Profile = () => {
           );
           await uploadBytes(imageRef, file);
           photoURL = await getDownloadURL(imageRef);
-          profileUpdated = true; // Mark as updated if photo is uploaded
         }
-  
-        // Update profile information if any changes were made
-        if (currentUser.displayName !== username || currentUser.photoURL !== photoURL) {
+
+        // Update profile information if there are changes
+        if (
+          currentUser.displayName !== username ||
+          currentUser.photoURL !== photoURL
+        ) {
           await updateProfile(currentUser, {
             displayName: username,
             photoURL: photoURL,
           });
-          profileUpdated = true; // Mark as updated if profile info is changed
         }
-  
+
         // Update password if needed
         if (password) {
           await updatePassword(currentUser, password);
           setPassword(""); // Clear password field
-          profileUpdated = true; // Mark as updated if password is changed
         }
-  
-        // Update Firestore with new username and profileComplete status
+
+        // Fetch the user document from Firestore
         const userCollectionRef = collection(db, "users");
         const q = query(userCollectionRef, where("id", "==", currentUser.uid));
         const usersSnap = await getDocs(q);
-  
+
         if (!usersSnap.empty) {
-          const docRef = doc(db, "users", usersSnap.docs[0].id);
+          const userDoc = usersSnap.docs[0];
+          const docRef = doc(db, "users", userDoc.id);
+
+          // Update Firestore with new username and profileComplete status
           await updateDoc(docRef, {
             username: username,
             profileComplete: true, // Mark profile as complete
           });
-          console.log("Profile updated successfully");
+
+          console.log("Profile updated successfully in Firestore");
+
+          // Navigate to user page immediately after updating Firestore
+          navigate("/user");
         } else {
-          console.error("User document not found");
+          console.error("User document not found in Firestore");
         }
-  
-        // Clear currentPassword field
-        setCurrentPassword("");
-  
-        alert("Profile updated successfully!");
-  
-        // Navigate to user page after updating profile
-        navigate("/user");
-        console.log("Profile updated successfully");
       } catch (error) {
         console.error("Error updating profile: ", error);
         alert("Error updating profile: " + error.message);
+      } finally {
+        setLoading(false); // Hide loading spinner
       }
     }
   };
-  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -233,11 +233,13 @@ const Profile = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+              disabled={loading}
             >
-              Update Profile
+              {loading ? "Updating..." : "Update Profile"}
             </button>
           </form>
+        
         </div>
         <Link to="/user">
           <button className="text-white pl-2 rounded-md p-2 focus:outline-none bg-red-500">
