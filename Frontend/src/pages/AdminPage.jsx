@@ -1,16 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Header from "../components/Header";
-import { auth, db } from "../firebase-config";
+import { db } from "../firebase-config";
 import { addDoc, collection, getDocs } from "firebase/firestore";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 
-const emailAdmin = import.meta.env.VITE_EMAIL;
-const passwordAdmin = import.meta.env.VITE_PASSWORD;
+import { useNavigate } from "react-router-dom";
 
 const AddUserPage = () => {
   const navigate = useNavigate();
@@ -62,29 +56,54 @@ const AddUserPage = () => {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    const userCollectionRef = collection(db, "users");
     if (newUser.username && newUser.email) {
-      const { username, email, password } = newUser;
-      await createUserWithEmailAndPassword(auth, email, password);
-      await addDoc(userCollectionRef, {
-        id: auth.currentUser.uid,
-        username,
-        email,
-        role: "user",
-        firstLogin: true,
-      });
-      setUsers([...users, { id: auth.currentUser.uid, ...newUser }]);
-      await signOut(auth);
-      setNewUser({
-        username: "",
-        email: "",
-        password: "123456",
-        role: "user",
-        firstLogin: true,
-      });
-      setError("");
-      await signInWithEmailAndPassword(auth, emailAdmin, passwordAdmin);
-      navigate("/admin");
+      try {
+        // Correct URL construction using template literals
+        const url = `${import.meta.env.VITE_API_URL}/create-user`;
+
+        // Use Axios to send a POST request
+        const response = await axios.post(url, {
+          email: newUser.email,
+          password: newUser.password,
+          username: newUser.username,
+        });
+
+        // Extract user ID from the response data
+        const { uid } = response.data;
+
+        // Add the user to Firestore
+        await addDoc(collection(db, "users"), {
+          id: uid,
+          username: newUser.username,
+          email: newUser.email,
+          role: "user",
+          firstLogin: true,
+        });
+
+        // Update state with the new user and reset the form
+        setUsers([...users, { id: uid, ...newUser }]);
+        setNewUser({
+          username: "",
+          email: "",
+          password: "123456",
+          role: "user",
+          firstLogin: true,
+        });
+        setError("");
+        navigate("/admin");
+      } catch (error) {
+        // More detailed error handling for Axios
+        if (error.response) {
+          // Server responded with a status other than 200 range
+          setError(error.response.data.message || "Failed to create user");
+        } else if (error.request) {
+          // Request was made but no response received
+          setError("No response from server. Please try again.");
+        } else {
+          // Something happened in setting up the request
+          setError(error.message);
+        }
+      }
     } else {
       setError("Username and Email are required.");
     }
@@ -100,7 +119,7 @@ const AddUserPage = () => {
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex justify-center items-center bg-gray-200 p-8">
           <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg border border-none">
-            <h2 className="text-3xl text-center font-bold text-black mb-6">
+            <h2 className="text-3xl text-center font-bold text-black mb-6 font-mono">
               Add User
             </h2>
             <form onSubmit={handleAddUser}>
@@ -108,7 +127,7 @@ const AddUserPage = () => {
               <div className="mb-5">
                 <label
                   htmlFor="username"
-                  className="block text-lg font-medium text-black mb-2"
+                  className="block text-lg font-medium text-black mb-2 font-mono"
                 >
                   Username
                 </label>
@@ -120,13 +139,13 @@ const AddUserPage = () => {
                   onChange={handleInputChange}
                   placeholder="Enter username"
                   required
-                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm"
+                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm font-mono"
                 />
               </div>
               <div className="mb-5">
                 <label
                   htmlFor="email"
-                  className="block text-lg font-medium text-black mb-2"
+                  className="block text-lg font-medium text-black mb-2 font-mono"
                 >
                   Email
                 </label>
@@ -138,12 +157,12 @@ const AddUserPage = () => {
                   onChange={handleInputChange}
                   placeholder="Enter email"
                   required
-                  className="w-full p-3 bg-gray-100 text-black border border-gray-300 rounded-lg shadow-sm"
+                  className="w-full p-3 bg-gray-100 font-mono text-black border border-gray-300 rounded-lg shadow-sm"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
+                className="w-full py-2 px-4 bg-blue-500 text-white font-semibold font-mono rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition"
               >
                 Add User
               </button>
@@ -157,7 +176,9 @@ const AddUserPage = () => {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0`}
         >
-          <h2 className="text-2xl font-bold text-center p-4">Users</h2>
+          <h2 className="text-2xl font-bold text-center p-4 font-mono">
+            Users
+          </h2>
           <ul className="flex-1 overflow-y-auto">
             {users.map((user) => (
               <li
@@ -165,8 +186,10 @@ const AddUserPage = () => {
                 className="p-4 border-b border-gray-700 flex justify-between items-center"
               >
                 <div>
-                  <p className="text-white font-medium">{user.username}</p>
-                  <p className="text-gray-400">{user.email}</p>
+                  <p className="text-white font-medium font-mono">
+                    {user.username}
+                  </p>
+                  <p className="text-gray-400 font-mono">{user.email}</p>
                 </div>
               </li>
             ))}
@@ -176,5 +199,4 @@ const AddUserPage = () => {
     </div>
   );
 };
-
 export default AddUserPage;

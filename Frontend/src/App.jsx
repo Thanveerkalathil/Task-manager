@@ -9,6 +9,7 @@ import UserLogin from "./pages/UserLogin";
 import UserPage from "./pages/UserPage";
 import Profile from "./pages/Profile";
 import AuthHandler from "./components/AuthHandler";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -74,6 +75,7 @@ const App = () => {
               </RequireAuth>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <ToastContainer />
       </div>

@@ -3,7 +3,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { auth, db } from "../firebase-config";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -31,13 +38,7 @@ const UserLogin = () => {
       const userSnapshot = await getDoc(userRef);
       if (userSnapshot.exists()) {
         const userData = userSnapshot.data();
-        {console.log(userData)}
-        // Check the profileComplete flag
-        if (userData.profileComplete) {
-          navigate("/user"); // Redirect to user page if profile is complete
-        } else {
-          navigate("/profile"); // Redirect to profile page if profile is not complete
-        }
+        userData.firstLogin ? navigate("/profile") : navigate("/user");
       } else {
         throw new Error("User data not found");
       }

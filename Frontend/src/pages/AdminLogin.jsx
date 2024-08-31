@@ -15,21 +15,21 @@ const AdminLogin = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Login successful!");
-  
+
       // Check if the logged-in user is an admin
       const adminCollectionRef = collection(db, "admin");
       const q = query(adminCollectionRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
         toast.error("This email does not have admin privileges.");
         return; // Prevent redirect if not admin
       }
-  
+
       navigate("/adminPanel"); // Redirect to admin panel only if admin
     } catch (error) {
       toast.error("Login failed: " + error.message);
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 

@@ -55,7 +55,7 @@ const AuthHandler = ({ user, setIsAdmin }) => {
     };
 
     handleAuthChange();
-  }, []);
+  }, [user, setIsAdmin]);
 
   return null; // This component doesn't render anything
 };

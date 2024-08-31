@@ -14,9 +14,7 @@ const Header = ({
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      if (admin) {
-        navigate("/");
-      }
+      admin ? navigate("/adminlogin") : navigate("/");
     } catch (error) {
       console.log("Error logging out:", error.message);
     }
@@ -25,7 +23,13 @@ const Header = ({
     <header className="bg-slate-900 text-white px-4 flex justify-between items-center">
       {/* Logo */}
       <div className="text-sm md:text-2xl font-semibold py-3">
-        <h1 className="mb-.5 capitalize">Welcome, {user || "User"}</h1>
+        {user ? (
+          <h1 className="mb-.5 capitalize">Welcome, {user || "User"}</h1>
+        ) : (
+          <h1 className="mb-.5">
+            Welcome, {auth.currentUser.email || "Admin"}
+          </h1>
+        )}
 
         {showFilters && (
           <div className="flex-col md:flex-row space-x-2">
