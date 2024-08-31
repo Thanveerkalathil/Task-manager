@@ -24,7 +24,13 @@ admin.initializeApp({
 // Express setup (if you're using Express)
 const app = express();
 app.use(express.json());
-app.use(cors()); // Use the CORS middleware
+app.use(
+  cors({
+    origin: "https://task-manager-v-1.netlify.app", // Allow requests from Netlify
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+); // Use the CORS middleware
 
 // Endpoint to create a new user
 app.post("/create-user", async (req, res) => {
