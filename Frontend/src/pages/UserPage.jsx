@@ -327,31 +327,29 @@ const UserPage = () => {
           } md:relative md:translate-x-0 md:w-2/5 lg:w-3/12 w-64 z-20`}
         >
           <div className="w-5/5 flex flex-col justify-center items-center rounded-md bg-zinc-300 p-3">
-            <div className="flex flex-col items-center">
+            <div className="flex flex-row items-center">
               <img
-                className="w-[200px] h-[200px] rounded-full"
+                className="w-[70px] h-[70px] rounded-full"
                 src={
                   auth.currentUser.photoURL || "https://via.placeholder.com/150"
                 }
                 alt="user-dp"
               />
-              <div className="bg-zinc-50 w-full p-2 my-2 rounded-sm">
+              <div className=" w-full p-2 my-2 rounded-sm">
                 <h4 className="capitalize text-md font-semibold">
-                  {/* <span>username: </span> */}
                   {user ? user.username : ""}
                 </h4>
                 <h4 className="lowercase text-md font-semibold">
-                  {/* <span>email: </span> */}
                   {user ? user.email : ""}
                 </h4>
+                <Link
+                  to="/profile"
+                  className="text-blue-600 uppercase font-semibold text-[10px] hover:underline hover:underline-offset-1"
+                >
+                  Edit profile
+                </Link>
               </div>
             </div>
-            <Link
-              to="/profile"
-              className="text-blue-600 uppercase font-semibold text-[10px] hover:underline hover:underline-offset-1"
-            >
-              Edit profile
-            </Link>
           </div>
           <h2 className="text-lg font-bold mb-4">Users</h2>
           <ul className="space-y-2">

@@ -44,8 +44,6 @@ const AuthHandler = ({ user, setIsAdmin }) => {
             navigate("/user");
           }
         } else {
-          // If no user document is found, handle appropriately
-          console.log("User document not found.");
           // Navigate to a fallback page or handle as needed
           navigate("/"); // Redirect to the login page or a default page
         }

@@ -14,7 +14,7 @@ const AddUserPage = () => {
   const [newUser, setNewUser] = useState({
     username: "",
     email: "",
-    password: "123456",
+    password: import.meta.env.VITE_PASS,
     role: "user",
     firstLogin: true,
   });
@@ -85,7 +85,7 @@ const AddUserPage = () => {
         setNewUser({
           username: "",
           email: "",
-          password: "123456",
+          password: import.meta.env.VITE_PASS,
           role: "user",
           firstLogin: true,
         });
