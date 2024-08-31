@@ -39,14 +39,12 @@ const App = () => {
   return (
     <BrowserRouter>
       <div>
-        {user && <AuthHandler user={user} setIsAdmin={setIsAdmin} />}{" "}
-        {/* Only include AuthHandler if user is logged in */}
+        {user && <AuthHandler user={user} setIsAdmin={setIsAdmin} />}
         <Routes>
           <Route
             path="/"
             element={user ? <Navigate to="/user" /> : <UserLogin />}
           />
-
           <Route
             path="/user"
             element={
@@ -55,13 +53,11 @@ const App = () => {
               </RequireAuth>
             }
           />
-
           <Route path="/adminLogin" element={<AdminLogin />} />
           <Route
             path="/admin"
             element={isAdmin ? <Navigate to="/adminPanel" /> : <AdminLogin />}
           />
-
           <Route
             path="/adminPanel"
             element={
